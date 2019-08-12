@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Table, Modal, Icon, Input, Select } from 'antd';
+import { Button, Table, Modal, Icon, Input, Select, message } from 'antd';
+import axios from '@axios';
 
 const { confirm } = Modal;
 const { Search } = Input;
@@ -10,19 +11,10 @@ class Operator extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            page: 1, // 当前页码
-            rows: 10, // 每页条数
+            pageNum: 1, // 当前页码
+            pageSize: 10, // 每页条数
             total: 1, // 总数
-            data: [
-                {
-                    a: 1,
-                    s: 2,
-                    d: 3,
-                    f: 4,
-                    g: 5,
-                    h: 6
-                }
-            ], // 列表数据
+            data: [], // 列表数据
             addInput: '', // 添加搜索输入框
             addSelect: '0', // 添加筛选器
             addVisible: false, // 添加模态框
@@ -32,6 +24,10 @@ class Operator extends Component {
             userPage: 1, // 当前页码
             userRows: 10, // 每页条数
             userTotal: 1, // 总数
+            shopId: '', // 店铺所属
+            operatorUserId: '', // 操作员用户id
+            Num: '', // 从属随机用户数量
+            userId: '', // 增加从属用户 
         }
 
         this.input = React.createRef()
@@ -45,37 +41,37 @@ class Operator extends Component {
         this.columns = [ // 定义列表数据
             {
                 title: '用户ID',
-                dataIndex: 'a',
+                dataIndex: 'userId',
                 align: 'center'
             },
             {
                 title: '预约完成单量',
-                dataIndex: 's',
+                dataIndex: 'appointmentNum',
                 align: 'center'
             },
             {
                 title: '产品销售单量',
-                dataIndex: 'd',
+                dataIndex: 'saleNum',
                 align: 'center'
             },
             {
                 title: '从属用户数量',
-                dataIndex: 'f',
+                dataIndex: 'userNum',
                 align: 'center'
             },
             {
                 title: '创建时间',
-                dataIndex: 'g',
+                dataIndex: 'createdTime',
                 align: 'center'
             },
             {
                 title: '操作',
                 dataIndex: 'h',
                 align: 'center',
-                render: text => (
+                render: (text, record, index) => (
                     <div style={{ textAlign: 'center' }}>
-                        <Button type="link" onClick={() => this.changeUserModal(true, text)}>从属信息</Button>
-                        <Button type="link" onClick={() => this.removeRelation(text)}>移除</Button>
+                        <Button type="link" onClick={() => this.changeUserModal(true, record)}>从属信息</Button>
+                        <Button type="link" onClick={() => this.removeRelation(record)}>移除</Button>
                     </div>
                 )
             }
@@ -105,11 +101,29 @@ class Operator extends Component {
         ]
     }
 
+    componentDidMount() {
+        this.init();
+    }
+
+    init = () => {
+        let { pageSize, pageNum } = this.state;
+        axios.post('/admin/shopOperator/list', {
+            pageSize,
+            pageNum
+        })
+            .then(({data}) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                this.setState({ data: data.responseBody.data.list, total: data.responseBody.total })
+                
+            })
+    }
+
     // 更改搜索框
     changeQeury = e => this.setState({ query: e.target.value.trim() });
 
     // 点击搜索
-    searchQuery = v => console.log(v, this.state.query);
+    searchQuery = v => console.log(v);
 
     // 重置
     reset = () => this.setState({ query: '' });
@@ -118,10 +132,10 @@ class Operator extends Component {
     changePage = v => this.setState({ page: v })
 
     // 更改字段text
-    changeInput = (e, field) => this.setState({ [field]: e.target.value });
+    changeInput = (e, field) => this.setState({ [field]: e.target.value, query: e.target.value });
 
     // 更改选择器
-    changeSelect = (value, field) => this.setState({ [field]: value });
+    changeSelect = (value, field) => this.setState({ [field]: value, shopId: value });
 
     // 移除关系
     removeRelation = id => {
@@ -129,8 +143,11 @@ class Operator extends Component {
             title: '是否确认移除?',
             maskClosable: true,
             icon: <Icon type="warning" />,
-            onOk() {
-                console.log('OK');
+            onOk: () => {
+                // axios.post('/admin/shopOperator/remove', {
+
+                // })
+                
             },
             onCancel() {
                 console.log('Cancel');
@@ -139,17 +156,81 @@ class Operator extends Component {
     }
 
     // 更改添加模态框状态
-    changeAddModal = status => this.setState({ addVisible: status, addInput: '', addSelect: '0' })
+    changeAddModal = (status, v) => {
+        let { shopId, query } = this.state; 
+        if( v === 'send') {
+            axios.post('/admin/shopOperator/add', {
+                shopId,
+                userId: query
+            })
+                .then(({ data }) => {
+                    if (data.code !== '200') return message.error(data.message);
+
+                    if (data.responseBody.code !== '1') return message.error(data.responseBody.message)
+
+                    message.success('添加成功');
+
+                    this.init();
+                })
+        }
+
+        this.setState({ addVisible: status });
+    }
 
     // 更改从属信息模态框状态
     changeUserModal = (status, id) => {
+        
         if (!status) return this.setState({ userVisible: status });
-        this.setState({ userVisible: status })
+        this.setState({ userVisible: status, operatorUserId: Number(id.userId) })
     }
 
     // 更改用户分页
     userChangePage = v => this.setState({ userPage: v });
 
+    // 搜索框
+    searchUserId = v => this.setState({ query: v });
+
+    // 随机从属input
+    getUserData = (e, type) => {  
+        if (type === 'random') this.setState({ Num: Number(e.target.value) });
+        if (type === 'add') this.setState({ userId: Number(e.target.value) });
+    }
+
+    // 随机从属添加
+    addRandom = type => {
+        let { operatorUserId, Num, userId } = this.state;
+        
+        if(type == 'random') {
+            axios.post('/admin/shopOperator/randSubUser', {
+                operatorUserId,
+                Num
+            })
+                .then(({ data }) => {
+                    if (data.code !== '200') return message.error(data.message);
+
+                    if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+
+                    message.success('添加成功')
+
+                })
+        }
+
+        if (type == 'add') {
+            axios.post('/admin/shopOperator/addSubUser', {
+                operatorUserId,
+                userId
+            })
+                .then(({ data }) => {
+                    if (data.code !== '200') return message.error(data.message);
+
+                    if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+
+                    message.success('添加成功')
+
+                })
+        }
+        
+    }
     render() {
         return (
             <div className="view">
@@ -189,7 +270,7 @@ class Operator extends Component {
                     width={350}
                 >
                     <div className="mt15 mb15">
-                        <Search value={this.state.addInput} placeholder="输入用户ID/手机号" onChange={e => this.changeInput(e, 'addInput')} onSearch={value => console.log(value)} enterButton />
+                        <Search value={this.state.addInput} placeholder="输入用户ID/手机号" onChange={e => this.changeInput(e, 'addInput')} onSearch={value => this.searchUserId(value)} enterButton />
                     </div>
                     <div className="mb15">
                         <span className="mr15">店铺所属</span>
@@ -200,7 +281,7 @@ class Operator extends Component {
                         </Select>
                     </div>
                     <div className="tc mt15">
-                        <Button type="primary" onClick={() => this.changeAddModal(false)}>确认添加</Button>
+                        <Button type="primary" onClick={v => this.changeAddModal(false, 'send')}>确认添加</Button>
                     </div>
                 </Modal>
 
@@ -213,13 +294,13 @@ class Operator extends Component {
                 >
                     <div className="mb15">
                         <span>随机从属用户</span>
-                        <Input style={{ width: 150, marginLeft: 15, marginRight: 15 }} placeholder="随机从属用户" />
-                        <Button type="primary">添加</Button>
+                        <Input style={{ width: 150, marginLeft: 15, marginRight: 15 }} onChange={e => this.getUserData(e, 'random')} placeholder="随机从属用户" />
+                        <Button type="primary" onClick={() => this.addRandom('random')}>添加</Button>
                     </div>
                     <div className="mb15">
                         <span>增加从属用户</span>
-                        <Input style={{ width: 150, marginLeft: 15, marginRight: 15 }} placeholder="先写用户ID" />
-                        <Button type="primary">添加</Button>
+                        <Input style={{ width: 150, marginLeft: 15, marginRight: 15 }} onChange={e => this.getUserData(e, 'add')} placeholder="先写用户ID" />
+                        <Button type="primary" onClick={() => this.addRandom('add')}>添加</Button>
                     </div>
                     <div className="mb15">
                         <Search style={{ width: 250 }} placeholder="请输入用户ID" value={this.state.query} onChange={this.changeQeury} onSearch={this.searchQuery} enterButton />

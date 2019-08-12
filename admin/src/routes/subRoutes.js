@@ -4,7 +4,7 @@ import Async from '../components/AsyncComponent/AsyncComponent';
 const UserMes = Async(() => import('../views/SubViews/sub1/UserMes/UserMes'))
 const DataMes = Async(() => import('../views/SubViews/sub1/DataMes/DataMes'))
 const Banner = Async(() => import('../views/SubViews/sub10/Banner/Banner'))
-const Release = Async(() => import('../views/SubViews/sub7/Release/Release'))
+// const Release = Async(() => import('../views/SubViews/sub7/Release/Release'))
 const Royalty = Async(() => import('../views/SubViews/sub7/Royalty/Royalty'))
 const MessageAdmin = Async(() => import('../views/SubViews/sub6/MessageAdmin/MessageAdmin'))
 const Recharge = Async(() => import('../views/SubViews/sub3/Recharge/Recharge'))
@@ -128,12 +128,12 @@ export default [
         name: 'sub7',
         title: '平台释放记录',
         children: [
-            {
-                key: '700',
-                title: '每日释放记录',
-                path: '/sub7/700',
-                component: Release
-            },
+            // {
+            //     key: '700',
+            //     title: '每日释放记录',
+            //     path: '/sub7/700',
+            //     component: Release
+            // },
             {
                 key: '701',
                 title: '提成记录',

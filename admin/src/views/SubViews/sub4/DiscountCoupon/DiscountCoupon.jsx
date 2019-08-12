@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Input, Button, DatePicker, Select, Table, Popover, Modal } from 'antd';
+import { Input, Button, DatePicker, Select, Table, Popover, Modal, message } from 'antd';
+import axios from '@axios';
 
 const { Option } = Select;
 const { confirm } = Modal;
@@ -11,15 +12,13 @@ class DiscountCoupon extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            page: 1, // 当前页码
-            rows: 10, // 每页条数
+            pageNum: 1, // 当前页码
+            pageSize: 10, // 每页条数
             total: 1, // 总数
             storeType: '0', // 作用类型 0 全部 1 产品类型 2 预约类型
             orderType: '0', // 产品类型 0 全部 1 产品类型XX 2 产品类型XXX
             ditchType: '0', // 启用状态 0 全部 1 折扣 2 满减
-            data: [
-                { a: 1, s: 1, d: 1, f: 1, g: 1, h: 1, j: 1, k: 1, l: 1, q: 1, w: 1, e: 1, r: 1, t: 1, y: 1, u: 1, i: 1, o: 1, p: 2 }
-            ], // 列表数据
+            data: [], // 列表数据
             modal: false, // 优惠券添加模态框 true 显示 false 隐藏
             effectType: '0', // 作用类型 0 产品购买 1 预约支付
             productType: '0', // 产品类型 0 全部 1 产品类型名称XX 2 产品类型名称XXX
@@ -100,8 +99,52 @@ class DiscountCoupon extends Component {
         ]
     }
 
+    componentDidMount() {
+        this.init();
+    }
+
+    init = () => {
+        let { pageNum, pageSize } = this.state;
+        axios.post('/admin/coupon/list', {
+            enable: '',
+            pageNum,
+            pageSize,
+            productTypeId: 0,
+            scopeType: '',
+            sort: 1
+        })
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                this.setState({ data: data.responseBody.data.list, total: data.total })
+            })
+    }
+
     // 更改选择器
-    changeSelect = (v, field) => this.setState({ [field]: v });
+    changeSelect = (v, field) => {
+        let { pageNum, pageSize } = this.state;
+
+        // 作用类型
+        let effectData = {
+            enable: '',
+            pageNum,
+            pageSize,
+            productTypeId: 0,
+            scopeType: !-v ? '' : Number(v),
+            sort: 1
+        }
+        
+        axios.post('/admin/coupon/list', field === 'storeType' ? effectData : '')
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                this.setState({
+                    data: data.responseBody.data.list,
+                    total: data.total,
+                    [field]: v
+                })
+            })
+    }
 
     // 更改页码
     changePage = v => this.setState({ page: v });
@@ -147,7 +190,11 @@ class DiscountCoupon extends Component {
     }
 
     // 更改选择器
-    changeModalSelect = (v, field) => this.setState({ [field]: v });
+    changeModalSelect = (v, field) => {
+        console.log(v, field);
+
+        this.setState({ [field]: v })
+    };
 
     /**
      * 更改输入框值

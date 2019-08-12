@@ -1,5 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { message } from 'antd'
+import axios from '@axios'
+import Cookie from 'js-cookie';
 import './Login.scss'
 
 class Login extends Component {
@@ -21,25 +23,24 @@ class Login extends Component {
         ev.stopPropagation();
 
         let { text, pass } = this.state;
-
+        
         if (text.trim().length === 0 || pass.trim().length === 0)
             return message.error('账号或密码不能为空');
 
-        // axios.post('/login', {
-        //     userName: text,
-        //     passWord: pass
-        // })
-        //     .then(({ data }) => {
+        axios.post('/common/login', {
+            userName: text,
+            passWord: pass
+        })
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
 
-        //         if (data.status !== '200') return message.error(data.msg);
+                Cookie.set('state', data.responseBody.data);
 
-        //         Cookie.set('state', true);
+                message.success('登录成功');
 
-        //         message.success('登录成功');
+                this.props.history.push('/sub1/100');
 
-        //         this.props.history.push('/sub1/1');
-
-        //     })
+            })
 
     }
 
@@ -76,7 +77,7 @@ class Login extends Component {
                             />
                         </div>
                         <button type="submit" className="SignIn_form_button">
-                            登录
+                            请求
                         </button>
                     </form>
                 </div>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Select, Table, Popover, Modal, Radio, Input } from 'antd';
+import { Button, Select, Table, Popover, Modal, Radio, Input, message, Pagination } from 'antd';
+import axios from '@axios';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -9,24 +10,12 @@ class ProductClassify extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            page: 1, // 当前页码
-            rows: 10, // 每页条数
+            pageNum : 1, // 当前页码
+            pageSize : 10, // 每页条数
             total: 1, // 总数
             accountType: '0', // 状态 0 全部 1 启用 2 关闭
             data: [
-                {
-                    a: 1,
-                    b: 2,
-                    c: 3,
-                    d: 4,
-                    e: 5,
-                    f: 6,
-                    g: 7,
-                    h: 8,
-                    j: 9,
-                    k: 10,
-                    l: 11
-                }
+                
             ], // 列表数据
             id: '', // id
             statusModal: false, // 状态编辑模态框 true 显示 false 隐藏
@@ -43,12 +32,12 @@ class ProductClassify extends Component {
         this.columns = [ // 定义列表数据
             {
                 title: '产品类型ID',
-                dataIndex: 'a',
+                dataIndex: 'id',
                 align: 'center'
             },
             {
                 title: '产品类型名称',
-                dataIndex: 'b',
+                dataIndex: 'typeName',
                 align: 'center'
             },
             {
@@ -67,7 +56,7 @@ class ProductClassify extends Component {
             },
             {
                 title: '微广场名称',
-                dataIndex: 'd',
+                dataIndex: 'squareName',
                 align: 'center'
             },
             {
@@ -100,22 +89,22 @@ class ProductClassify extends Component {
             },
             {
                 title: '产品类型状态',
-                dataIndex: 'g',
+                dataIndex: 'productTypeEnable',
                 align: 'center'
             },
             {
                 title: '广场状态',
-                dataIndex: 'h',
+                dataIndex: 'squareEnable',
                 align: 'center'
             },
             {
                 title: '创建时间',
-                dataIndex: 'j',
+                dataIndex: 'createdTime',
                 align: 'center',
             },
             {
                 title: '更新时间',
-                dataIndex: 'k',
+                dataIndex: 'updatedTime',
                 align: 'center',
             },
             {
@@ -132,6 +121,25 @@ class ProductClassify extends Component {
         ]
     }
 
+    componentDidMount(){
+        this.init()
+    }
+
+    init = () => {
+        let { pageNum, pageSize } = this.state;
+        axios.post('/admin/productType/list', {
+            enable:'',
+            pageNum,
+            pageSize,
+            sort: 1
+        })
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+                
+                this.setState({ data: data.responseBody.data.list, total: data.total})
+            })
+    }
+
     // 更改搜索框
     changeQeury = e => this.setState({ query: e.target.value.trim() });
 
@@ -145,7 +153,27 @@ class ProductClassify extends Component {
     reset = () => this.setState({ query: '', times: [], page: 1, accountType: '0' })
 
     // 更改选择器
-    changeSelect = v => this.setState({ accountType: v });
+    changeSelect = v => {
+        let { pageNum, pageSize } = this.state;
+        
+        let data = {
+            enable: !-v ? '' : Number(v),
+            pageNum,
+            pageSize,
+            sort: 1
+        }
+
+        axios.post('/admin/productType/list', data)
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                this.setState({ 
+                    data: data.responseBody.data.list, 
+                    total: data.total,
+                    accountType: v
+                })
+            })
+    };
 
     // 更改页码
     changePage = v => this.setState({ page: v })
@@ -187,6 +215,7 @@ class ProductClassify extends Component {
     changeProductInput = (e, field) => this.setState({ [field]: e.target.value });
 
     render() {
+        let { data, total, pageNum, pageSize } = this.state;
         return (
             <div className="view">
 
@@ -207,16 +236,16 @@ class ProductClassify extends Component {
                 <div style={{ textAlign: 'center' }}>
                     <Table
                         bordered
-                        dataSource={this.state.data}
+                        dataSource={data}
                         columns={this.columns}
                         pagination={{
-                            total: this.state.total,
-                            pageSize: this.state.rows,
-                            onChange: this.state.changePage,
-                            current: this.state.page,
+                            total,
+                            pageSize,
+                            onChange: this.changePage,
+                            current: pageNum,
                             hideOnSinglePage: true,
                             showQuickJumper: true,
-                            showTotal: () => `共 ${this.state.total} 条数据`
+                            showTotal: () => `共 ${total} 条数据`
                         }}
                         rowKey={(record, index) => index}
                     />

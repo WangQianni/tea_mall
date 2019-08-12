@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Input, Button, DatePicker, Select, Table, Popover, Modal, Icon } from 'antd';
+import axios from '@axios';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -17,40 +18,28 @@ class MessageAdmin extends Component {
             rows: 10, // 每页条数
             total: 1, // 总数
             accountType: '0', // 0 全部 1 启用 2 封禁
-            data: [
-                {
-                    a: 1,
-                    b: 2,
-                    c: 3,
-                    d: 4,
-                    e: 5,
-                    f: 6,
-                    g: 7,
-                    h: 8,
-                    j: 9
-                }
-            ], // 列表数据
+            data: [], // 列表数据
         }
 
         this.columns = [ // 定义列表数据
             {
                 title: '记录ID',
-                dataIndex: 'a',
+                dataIndex: 'id',
                 align: 'center'
             },
             {
                 title: '广场名称',
-                dataIndex: 'b',
+                dataIndex: 'squareName',
                 align: 'center'
             },
             {
                 title: '用户ID',
-                dataIndex: 'c',
+                dataIndex: 'userId',
                 align: 'center'
             },
             {
                 title: '绑定订单号',
-                dataIndex: 'd',
+                dataIndex: 'orderNo',
                 align: 'center'
             },
             {
@@ -69,7 +58,7 @@ class MessageAdmin extends Component {
             },
             {
                 title: '发布内容',
-                dataIndex: 'f',
+                dataIndex: 'content',
                 align: 'center',
                 render: text => (
                     <Popover placement="bottom" content={(
@@ -83,12 +72,12 @@ class MessageAdmin extends Component {
             },
             {
                 title: '创建时间',
-                dataIndex: 'g',
+                dataIndex: 'createdTime',
                 align: 'center'
             },
             {
                 title: '领取优惠券ID',
-                dataIndex: 'h',
+                dataIndex: 'couponId',
                 align: 'center'
             },
             {
@@ -110,6 +99,14 @@ class MessageAdmin extends Component {
                 }}>隐藏</Button>
             }
         ]
+    }
+
+    componentDidMount() {
+        this.init();
+    }
+
+    init = () => {
+        // axios.post('/admin/microSquare/list')
     }
 
     // 更改搜索框

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Input, Button, DatePicker, Select, Table } from 'antd';
+import { Input, Button, DatePicker, Select, Table, message } from 'antd';
+import axios from '@axios';
 
 const { Search } = Input;
 const { RangePicker } = DatePicker;
@@ -63,11 +64,22 @@ class UserMes extends Component {
         ]
     }
 
+    init = () => {
+        
+    }
+
     // 更改搜索框
     changeQeury = e => this.setState({ query: e.target.value.trim() });
 
     // 点击搜索
-    searchQuery = v => console.log(v, this.state.query);
+    searchQuery = id => {
+        axios.post('/app/user/info', { id })
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                this.setState({ data: data.responseBody.data.list })
+            })
+    };
 
     // 更改时间
     changeTime = date => this.setState({ times: date });

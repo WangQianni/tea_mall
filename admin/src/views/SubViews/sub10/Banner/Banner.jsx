@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Table, Modal, Input, message, Popover, Button } from 'antd';
-// import axios from '@axios';
+import axios from '@axios';
 
 // 轮播管理-轮播管理
 class BannerAdmin extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            pageNum: 1, // 第几页
+            pageSize: 10, // 每页显示的数据量 
             isModel: false, // 模态框
             data: [], // 数据
             id: '', // 参数对象
@@ -49,7 +51,7 @@ class BannerAdmin extends Component {
                 dataIndex: '2',
                 key: '2',
                 render: (text, rowData, index) => (
-                    <div className="color" onClick={e => this.showModal(rowData)}>编辑</div>
+                    <div style={{ cursor: 'pointer'}} className="color" onClick={e => this.showModal(rowData)}>编辑</div>
                 )
             }
         ];
@@ -60,11 +62,16 @@ class BannerAdmin extends Component {
     }
 
     init = () => {
-        // axios.post('/banner/page')
-        //     .then(({ data }) => {
-        //         if (data.status !== "200") return message.error(data.msg);
-        //         this.setState({ data: data.result, total: data.totalCount });
-        //     })
+        let { pageNum, pageSize } = this.state;
+        axios.post('/admin/banner/list', {
+            pageNum,
+            pageSize,
+            sort: 1
+        })
+            .then(({ data }) => {
+                if (data.code !== "200") return message.error(data.msg);
+                this.setState({ data: data.responseBody.data.list, total: data.total });
+            })
     }
 
     getImg = id => {
@@ -84,6 +91,10 @@ class BannerAdmin extends Component {
         //         if (data.status !== "200") return this.setState({ isModel: true, id: rowData.id, linkUrl: rowData.linkUrl, img: '' });
         //         this.setState({ isModel: true, id: rowData.id, linkUrl: rowData.linkUrl, img: data.result });
         //     })
+
+        this.setState({
+            isModel: true
+        })
 
     }
 
