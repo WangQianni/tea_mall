@@ -19,7 +19,7 @@ class RechargeLimit extends Component {
 
         this.columns = [
             {
-                title: '游乐宝额度',
+                title: '预充值额度',
                 align: 'center',
                 dataIndex: 'paramValue',
                 key: 'paramValue'

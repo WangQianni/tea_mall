@@ -1,11 +1,19 @@
+/*
+ * @Description: 
+ * @Author: wangzv
+ * @Date: 2019-08-06 17:30:45
+ * @LastEditors: wangzv
+ * @LastEditTime: 2019-08-06 17:30:45
+ */
 import React from 'react';
 import Async from '../components/AsyncComponent/AsyncComponent';
 
 const UserMes = Async(() => import('../views/SubViews/sub1/UserMes/UserMes'))
 const DataMes = Async(() => import('../views/SubViews/sub1/DataMes/DataMes'))
+const StoreControl = Async(() => import('../views/SubViews/sub2/StoreControl'))
 const Banner = Async(() => import('../views/SubViews/sub10/Banner/Banner'))
-// const Release = Async(() => import('../views/SubViews/sub7/Release/Release'))
 const Royalty = Async(() => import('../views/SubViews/sub7/Royalty/Royalty'))
+const Release = Async(() => import('../views/SubViews/sub7/Release/Release'))
 const MessageAdmin = Async(() => import('../views/SubViews/sub6/MessageAdmin/MessageAdmin'))
 const Recharge = Async(() => import('../views/SubViews/sub3/Recharge/Recharge'))
 const Extract = Async(() => import('../views/SubViews/sub3/Extract/Extract'))
@@ -16,6 +24,7 @@ const ProductOrder = Async(() => import('../views/SubViews/sub5/ProductOrder/Pro
 const ReserveOrder = Async(() => import('../views/SubViews/sub5/ReserveOrder/ReserveOrder'))
 const DiscountCoupon = Async(() => import('../views/SubViews/sub4/DiscountCoupon/DiscountCoupon'))
 const ProductClassify = Async(() => import('../views/SubViews/sub4/ProductClassify/ProductClassify'))
+const ProductMsgCtrl = Async(() => import('../views/SubViews/sub4/ProductMsgCtrl/ProductMsgCtrl'))
 
 export default [
     {
@@ -43,7 +52,8 @@ export default [
             {
                 key: '200',
                 title: '店铺管理',
-                path: '/sub2/200'
+                path: '/sub2/200',
+                component: StoreControl
             }
         ]
     },
@@ -84,7 +94,8 @@ export default [
             {
                 key: '401',
                 title: '产品信息管理',
-                path: '/sub4/401'
+                path: '/sub4/401',
+                component: ProductMsgCtrl
             },
             {
                 key: '402',
@@ -128,12 +139,12 @@ export default [
         name: 'sub7',
         title: '平台释放记录',
         children: [
-            // {
-            //     key: '700',
-            //     title: '每日释放记录',
-            //     path: '/sub7/700',
-            //     component: Release
-            // },
+            {
+                key: '700',
+                title: '每日释放记录',
+                path: '/sub7/700',
+                component: Release
+            },
             {
                 key: '701',
                 title: '提成记录',

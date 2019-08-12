@@ -27,7 +27,7 @@ class Login extends Component {
         if (text.trim().length === 0 || pass.trim().length === 0)
             return message.error('账号或密码不能为空');
 
-        axios.post('/common/login', {
+        axios.post('/admin/common/login', {
             userName: text,
             passWord: pass
         })
