@@ -293,10 +293,8 @@ class ProductClassify extends Component {
                 isAddProduct: type, id, 
                 editType: id.squareEnable == '禁用' ? 2 : 1, 
                 miniPlaza: id.productTypeEnable == '禁用' ? 2 : 1,
-                // typeName:,
-                //     miniPlazaName:,
-                // squareExplain:,
-                //     fileList:,
+                typeName: id.typeName,
+                miniPlazaName: id.squareName
             })
         }
     }
