@@ -8,8 +8,8 @@ class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            text: '',
-            pass: ''
+            userName: '', // 账号
+            passWord: '' // 密码
         }
     }
 
@@ -18,18 +18,17 @@ class Login extends Component {
     }
 
     onSubmit = (ev) => {
-
         ev.preventDefault();
         ev.stopPropagation();
 
-        let { text, pass } = this.state;
+        let { userName, passWord } = this.state;
         
-        if (text.trim().length === 0 || pass.trim().length === 0)
+        if (userName.trim().length === 0 || passWord.trim().length === 0)
             return message.error('账号或密码不能为空');
 
         axios.post('/admin/common/login', {
-            userName: text,
-            passWord: pass
+            userName,
+            passWord
         })
             .then(({ data }) => {
                 if (data.code !== '200') return message.error(data.message);
@@ -46,7 +45,7 @@ class Login extends Component {
 
     render() {
 
-        let { text, pass } = this.state
+        let { userName, passWord } = this.state
         let { changeVal, onSubmit } = this
 
         return (
@@ -63,7 +62,7 @@ class Login extends Component {
                                 type="text"
                                 className="Rectangle-2"
                                 placeholder="请输入用户名"
-                                value={text}
+                                value={userName}
                                 onChange={e => changeVal(e, 'text')}
                             />
                         </div>
@@ -72,7 +71,7 @@ class Login extends Component {
                                 type="password"
                                 className="Rectangle-2"
                                 placeholder="请输入密码"
-                                value={pass}
+                                value={passWord}
                                 onChange={e => changeVal(e, 'pass')}
                             />
                         </div>

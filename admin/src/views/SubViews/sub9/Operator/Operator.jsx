@@ -17,6 +17,7 @@ class Operator extends Component {
             data: [], // 列表数据
             addInput: '', // 添加搜索输入框
             addSelect: '0', // 添加筛选器
+            addSelectData: [], // 店铺下拉框数据
             addVisible: false, // 添加模态框
             userVisible: false, // 从属用户信息模态框
             query: '', // 搜索
@@ -24,19 +25,12 @@ class Operator extends Component {
             userPage: 1, // 当前页码
             userRows: 10, // 每页条数
             userTotal: 1, // 总数
-            shopId: '', // 店铺所属
             operatorUserId: '', // 操作员用户id
             Num: '', // 从属随机用户数量
             userId: '', // 增加从属用户 
         }
 
         this.input = React.createRef()
-
-        this.addContent = (
-            <Fragment>
-
-            </Fragment>
-        )
 
         this.columns = [ // 定义列表数据
             {
@@ -105,9 +99,9 @@ class Operator extends Component {
         this.init();
     }
 
-    init = () => {
+     init = async () => { // 初始化
         let { pageSize, pageNum } = this.state;
-        axios.post('/admin/shopOperator/list', {
+        await axios.post('/admin/shopOperator/list', {
             pageSize,
             pageNum
         })
@@ -116,6 +110,18 @@ class Operator extends Component {
 
                 this.setState({ data: data.responseBody.data.list, total: data.responseBody.total })
                 
+            })
+        
+        await axios.post('/admin/shop/all/list')
+            .then(({ data }) => {
+                if (data.code !== '200') return message.error(data.message);
+
+                data.responseBody.data.unshift({
+                    id: '0',
+                    shopName: '全部'
+                })
+
+                this.setState({ addSelectData: data.responseBody.data })
             })
     }
 
@@ -135,7 +141,7 @@ class Operator extends Component {
     changeInput = (e, field) => this.setState({ [field]: e.target.value, query: e.target.value });
 
     // 更改选择器
-    changeSelect = (value, field) => this.setState({ [field]: value, shopId: value });
+    changeSelect = (value, field) => this.setState({ [field]: value, addSelect: value });
 
     // 移除关系
     removeRelation = id => {
@@ -144,9 +150,22 @@ class Operator extends Component {
             maskClosable: true,
             icon: <Icon type="warning" />,
             onOk: () => {
-                // axios.post('/admin/shopOperator/remove', {
+                console.log(id);
+                
+                axios.post('/admin/shopOperator/remove', {
+                    shopId: id.shopId,
+                    userId: id.userId
+                })
+                    .then(({data}) => {
+                        if (data.code !== '200') return message.error(data.message);
 
-                // })
+                        if (data.responseBody.code !== '1') return message.error(data.message);
+
+                        message.success(data.responseBody.message)
+
+                        this.init();
+                        
+                    })
                 
             },
             onCancel() {
@@ -157,30 +176,32 @@ class Operator extends Component {
 
     // 更改添加模态框状态
     changeAddModal = (status, v) => {
-        let { shopId, query } = this.state; 
+        let { addSelect, query } = this.state; 
         if( v === 'send') {
             axios.post('/admin/shopOperator/add', {
-                shopId,
+                shopId: addSelect,
                 userId: query
             })
                 .then(({ data }) => {
                     if (data.code !== '200') return message.error(data.message);
-
+                    
                     if (data.responseBody.code !== '1') return message.error(data.responseBody.message)
 
                     message.success('添加成功');
 
+                    this.setState({ addSelect: '0', query: '' })
+
                     this.init();
                 })
         }
-
-        this.setState({ addVisible: status });
+        this.setState({ addVisible: status, });
     }
 
     // 更改从属信息模态框状态
     changeUserModal = (status, id) => {
         
         if (!status) return this.setState({ userVisible: status });
+
         this.setState({ userVisible: status, operatorUserId: Number(id.userId) })
     }
 
@@ -232,6 +253,7 @@ class Operator extends Component {
         
     }
     render() {
+        let { addSelectData, addSelect } =  this.state;
         return (
             <div className="view">
 
@@ -274,10 +296,10 @@ class Operator extends Component {
                     </div>
                     <div className="mb15">
                         <span className="mr15">店铺所属</span>
-                        <Select value={this.state.addSelect} style={{ width: 200 }} onChange={v => this.changeSelect(v, 'addSelect')}>
-                            <Option value="0">全部</Option>
-                            <Option value="1">店铺XXX</Option>
-                            <Option value="2">店铺XXXXX</Option>
+                        <Select value={addSelect} style={{ width: 200 }} onChange={v => this.changeSelect(v, 'addSelect')}>
+                            {
+                                addSelectData.map(v => <Option key={v.id} value={v.id}>{v.shopName}</Option>)
+                            }
                         </Select>
                     </div>
                     <div className="tc mt15">

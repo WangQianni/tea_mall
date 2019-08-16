@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Input, Button, DatePicker, Select, Table } from 'antd';
 
 const { Search } = Input;
-// const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-// 店铺管理
+// 产品信息管理
 class ProductMsgCtrl extends Component {
     constructor(props) {
         super(props)
@@ -17,7 +17,7 @@ class ProductMsgCtrl extends Component {
             total: 1, // 总数
             royaltyType: '0', // 0 全部 1 启用 2 封禁
             data: [
-                1
+                {}
             ], // 列表数据
         }
 
@@ -53,9 +53,9 @@ class ProductMsgCtrl extends Component {
                 align: 'center',
                 render: (t, r, i) => (
                     <>
-                        <Button type="link" size="small" onClick={() => this.changeProductModal(true, 2, t)}>产品编辑</Button>
-                        <Button type="link" size="small" onClick={() => this.changeStatusModal(true, t)}>禁用</Button>
-                        <Button type="link" size="small" onClick={() => this.changeStatusModal(true, t)}>启用</Button>
+                        <Button type="link" size="small" onClick={() => this.changeProductModal(true, 2, r)}>产品编辑</Button>
+                        <Button type="link" size="small" onClick={() => this.changeStatusModal(true, r)}>禁用</Button>
+                        <Button type="link" size="small" onClick={() => this.changeStatusModal(true, r)}>启用</Button>
                     </>
                 )
             }
@@ -64,6 +64,18 @@ class ProductMsgCtrl extends Component {
 
     // 更改搜索框
     changeQeury = e => this.setState({ query: e.target.value.trim() });
+
+    // 产品编辑
+    changeProductModal = e => {
+
+    }
+
+    // 启用禁用
+    changeStatusModal = (e, type) => {
+        console.log(e, type);
+        
+    }
+
 
     // 点击搜索
     searchQuery = v => console.log(v, this.state.query);
@@ -76,7 +88,7 @@ class ProductMsgCtrl extends Component {
 
     // 添加店铺
     addStore = () => {
-        console.log('导出')
+        console.log('add')
     }
 
     // 更改选择器

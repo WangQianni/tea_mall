@@ -31,7 +31,7 @@ class BannerAdmin extends Component {
                 align: 'center',
                 dataIndex: 'id',
                 key: 'id',
-                render: (text, rowData) => (<span className="color" onClick={e => this.showModalImg(rowData)} >查阅</span>)
+                render: (text, rowData) => (<span style={{ cursor: 'pointer' }} className="color" onClick={e => this.showModalImg(rowData)} >查看</span>)
             },
             {
                 title: '链接',
@@ -65,8 +65,7 @@ class BannerAdmin extends Component {
         let { pageNum, pageSize } = this.state;
         axios.post('/admin/banner/list', {
             pageNum,
-            pageSize,
-            sort: 1
+            pageSize
         })
             .then(({ data }) => {
                 if (data.code !== "200") return message.error(data.msg);
@@ -204,7 +203,7 @@ class BannerAdmin extends Component {
                 >
 
                     <div>
-                        <Button type="primary" onClick={this.addImgArrItem}>修改图片</Button>
+                        <Button type="primary" onClick={this.addImgArrItem}>添加图片</Button>
                         <span style={{ color: 'red' }} className="ml15">注意: 图片不能大于1m，格式为png，尺寸为750*240</span>
                     </div>
 
