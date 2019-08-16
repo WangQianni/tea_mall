@@ -210,7 +210,7 @@ class ProductClassify extends Component {
     }
 
     // 更改选择器
-    changeSelect = v => this.setState({ selectNum: v }, () => { this.axiosSelect()})
+    changeSelect = v => this.setState({ selectNum: v, currentPage: 1 }, () => { this.axiosSelect()})
 
     axiosSelect = e => { // 更改选择器交互
         let { currentPage, pageSize, selectNum } = this.state;
@@ -239,7 +239,7 @@ class ProductClassify extends Component {
             })
     }
 
-    // 更改页码
+    // 更改页码 
     changePage = v => {
         this.setState({ currentPage: v }, () => {
             this.init()
