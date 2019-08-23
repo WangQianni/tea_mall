@@ -1,3 +1,10 @@
+/*
+ * @Description: 
+ * @Author: wangzv
+ * @Date: 2019-08-06 17:30:45
+ * @LastEditors: wangzv
+ * @LastEditTime: 2019-08-20 11:27:32
+ */
 'use strict';
 
 const fs = require('fs');
@@ -251,9 +258,6 @@ module.exports = function (webpackEnv) {
             // Keep the runtime chunk separated to enable long term caching
             // https://twitter.com/wSokra/status/969679223278505985
             runtimeChunk: true,
-        },
-        externals: {
-            "QMap": "qq.maps"
         },
         resolve: {
             // This allows you to set a fallback for where Webpack should look for modules.

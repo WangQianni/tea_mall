@@ -1,3 +1,10 @@
+/*
+ * @Description: 
+ * @Author: wangzv
+ * @Date: 2019-08-07 14:50:42
+ * @LastEditors: wangzv
+ * @LastEditTime: 2019-08-20 17:44:33
+ */
 import axios from "axios";
 import qs from "qs";
 import { message } from 'antd';
@@ -13,7 +20,9 @@ axios.defaults.baseURL = "http://47.112.118.84:7001/cy/";
 // 配置超时时间
 axios.defaults.timeout = 100000;
 // axios.defaults.headers = {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'};
-axios.defaults.headers = { 'Content-Type': 'application/json;charset=utf-8' };
+axios.defaults.headers = { 
+    'Content-Type': 'application/json;charset=utf-8',
+};
 
 // const time = document.cookie.split('; ').find(item => {
 //   let array = item.split('=');

@@ -210,7 +210,7 @@ class ProductClassify extends Component {
     }
 
     // 更改选择器
-    changeSelect = v => this.setState({ selectNum: v, currentPage: 1 }, () => { this.axiosSelect()})
+    changeSelect = v => this.setState({ selectNum: v, currentPage: 1 }, () => { this.axiosSelect() })
 
     axiosSelect = e => { // 更改选择器交互
         let { currentPage, pageSize, selectNum } = this.state;
@@ -283,18 +283,50 @@ class ProductClassify extends Component {
      * @memberof ProductClassify
      */
     changeProductModal = (status, type, id) => {
-        console.log(id);
         if (!status) return this.setState({ productModal: status, isAddProduct: type });
         this.setState({ productModal: status, isAddProduct: type, id });
-        if (type == 2) {
+        
 
-            this.setState({ 
-                productModal: status, 
-                isAddProduct: type, id, 
-                editType: id.squareEnable == '禁用' ? 2 : 1, 
+        if (type == 2) {
+            axios.post('/common/attachment/list', {
+                category: 1,
+                resourceId: id.id
+            }).then(({ data }) => {
+                if (data.code !== "200") return message.error(data.message);
+                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+                this.setState({ icon: data.responseBody.data[0].url })
+
+            })
+            axios.post('/common/attachment/list', {
+                category: 2,
+                resourceId: id.squareId,
+                type: 201
+            }).then(({ data }) => {
+                if (data.code !== "200") return message.error(data.message);
+                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+                this.setState({ squareIcon: data.responseBody.data[0].url })
+
+            })
+            axios.post('/common/attachment/list', {
+                category: 2,
+                resourceId: id.squareId,
+                type: 202
+            }).then(({ data }) => {
+                if (data.code !== "200") return message.error(data.message);
+                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+                this.setState({ squarePhoto: data.responseBody.data[0].url })
+
+            })
+
+            this.setState({
+                productModal: status,
+                isAddProduct: type, id,
+                editType: id.squareEnable == '禁用' ? 2 : 1,
                 miniPlaza: id.productTypeEnable == '禁用' ? 2 : 1,
                 typeName: id.typeName,
-                miniPlazaName: id.squareName
+                miniPlazaName: id.squareName,
+                squareExplain: id.description
+                
             })
         }
     }
@@ -387,8 +419,6 @@ class ProductClassify extends Component {
     handleCancel = () => this.setState({ previewVisiblePr: false });
 
     handlePreview = async file => { // 照片预览
-        console.log(file);
-
         if (!file.url && !file.preview) {
             file.preview = await this.getBase64(file.originFileObj);
         }
@@ -399,51 +429,89 @@ class ProductClassify extends Component {
         });
     };
 
-    handleChange = ({ fileList }) => { // 图片上传
-        if (fileList.length === 1 && fileList[0].status == "done") {
-            var proData = {
-                fileBase64Content: fileList[0].thumbUrl.split(',')[1],
-                fileName: fileList[0].name
-            }
+    handleChange = ({ fileList }, type) => { // 图片上传
+        if(type === 2) {
+            
         }
-        if (fileList.length === 2 && fileList[1].status == "done") {
-            var squareIconData = {
-                fileBase64Content: fileList[1].thumbUrl.split(',')[1],
-                fileName: fileList[1].name
-            }
-        }
-        if (fileList.length === 3 && fileList[2].status == "done") {
-            var squarePhotoData = {
-                fileBase64Content: fileList[2].thumbUrl.split(',')[1],
-                fileName: fileList[2].name
-            }
-        }
-        if (fileList.length == 1 && fileList[0].status == "done") axios.post('/common/file/upload', proData)
-            .then(({ data }) => {
-                if (data.code !== "200") return message.error(data.message);
-                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
-                this.setState({ proUrl: data.responseBody.data })
-                message.success('上传成功')
-
+        
+        if (fileList.length)
+            fileList.forEach((v, i) => {
+                if (v.status == 'done') {
+                    if (v.name.split('.')[1] !== 'png' || v.size > 1024) return message.error(`格式有问题！${v.name.split('.')[1] !== 'png' ? '不是png格式' : v.size > 1024 ? '尺寸大于1M' : ''}`);
+                    axios.post('/common/file/upload', {
+                        fileBase64Content: v.thumbUrl.split(',')[1],
+                        fileName: v.name
+                    })
+                        .then(({ data }) => {
+                            if (data.code !== "200") return message.error(data.message);
+                            if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+                            this.setState({ sqPUrl: data.responseBody.data })
+                            message.success('上传成功')
+                        })
+                }
             })
 
-        if (fileList.length == 2 && fileList[1].status == "done") axios.post('/common/file/upload', squareIconData)
-            .then(({ data }) => {
-                if (data.code !== "200") return message.error(data.message);
-                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
-                this.setState({ sqIconUrl: data.responseBody.data })
-                message.success('上传成功')
-            })
-
-        if (fileList.length == 3 && fileList[2].status == "done") axios.post('/common/file/upload', squarePhotoData)
-            .then(({ data }) => {
-                if (data.code !== "200") return message.error(data.message);
-                if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
-                this.setState({ sqPUrl: data.responseBody.data })
-                message.success('上传成功')
-            })
         this.setState({ fileList });
     }
+
+    // handleChange = ({ fileList }) => { // 图片上传
+    //     console.log(fileList);
+
+    //     if (fileList.length === 1 && fileList[0].status == "done") {
+    //         var proData = {
+    //             fileBase64Content: fileList[0].thumbUrl.split(',')[1],
+    //             fileName: fileList[0].name
+    //         }
+    //     }
+    //     if (fileList.length === 2 && fileList[1].status == "done") {
+    //         var squareIconData = {
+    //             fileBase64Content: fileList[1].thumbUrl.split(',')[1],
+    //             fileName: fileList[1].name
+    //         }
+    //     }
+    //     if (fileList.length === 3 && fileList[2].status == "done" ) {
+    //         var squarePhotoData = {
+    //             fileBase64Content: fileList[2].thumbUrl.split(',')[1],
+    //             fileName: fileList[2].name
+    //         }
+    //     } 
+
+    //     if (fileList.length == 1 && fileList[0].status == "done") {
+    //         if (fileList[0].name.split('.')[1] !== 'png' || fileList[0].size > 1024) return message.error(`产品icon格式有问题！${fileList[0].name.split('.')[1] !== 'png' ? '不是png格式' : fileList[0].size > 1024 ? '尺寸大于1M' : ''}`);
+    //         axios.post('/common/file/upload', proData)
+    //             .then(({ data }) => {
+    //                 if (data.code !== "200") return message.error(data.message);
+    //                 if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+    //                 this.setState({ proUrl: data.responseBody.data })
+    //                 message.success('上传成功')
+
+    //             })
+    //     }
+
+    //     if (fileList.length == 2 && fileList[1].status == "done" ) {
+    //         if (fileList[1].name.split('.')[1] !== 'png' || fileList[1].size > 1024) return message.error(`微广场icon格式有问题！${fileList[0].name.split('.')[1] !== 'png' ? '不是png格式' : fileList[0].size > 1024 ? '尺寸大于1M' : ''}`);
+
+    //         axios.post('/common/file/upload', squareIconData)
+    //             .then(({ data }) => {
+    //                 if (data.code !== "200") return message.error(data.message);
+    //                 if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+    //                 this.setState({ sqIconUrl: data.responseBody.data })
+    //                 message.success('上传成功')
+    //             })
+    //     }
+
+    //     if (fileList.length == 3 && fileList[2].status == "done" ) {
+    //         if (fileList[2].name.split('.')[1] !== 'png' || fileList[2].size > 1024) return message.error(`微广场广告图格式有问题！${fileList[0].name.split('.')[1] !== 'png' ? '不是png格式' : fileList[0].size > 1024 ? '尺寸大于1M' : ''}`);
+    //         axios.post('/common/file/upload', squarePhotoData)
+    //             .then(({ data }) => {
+    //                 if (data.code !== "200") return message.error(data.message);
+    //                 if (data.responseBody.code !== '1') return message.error(data.responseBody.message);
+    //                 this.setState({ sqPUrl: data.responseBody.data })
+    //                 message.success('上传成功')
+    //             })
+    //     }
+    //     this.setState({ fileList });
+    // }
 
     getBase64 = file => {
         return new Promise((resolve, reject) => {
@@ -560,7 +628,7 @@ class ProductClassify extends Component {
                             listType="picture-card"
                             fileList={fileList}
                             onPreview={this.handlePreview}
-                            onChange={this.handleChange}
+                            onChange={(e, type) => this.handleChange(e, this.state.isAddProduct)}
                         >
                             {fileList.length >= 3 ? null : (
                                 <div>

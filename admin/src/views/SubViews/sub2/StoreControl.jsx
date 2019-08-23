@@ -68,11 +68,11 @@ class StoreControl extends Component {
                 dataIndex: '3',
                 align: 'center',
                 render: (t, r, i) => (
-                    <>
+                    <div>
                         <Button type="link" size="small" onClick={() => this.changeProductModal(false)}>店铺详情</Button>
                         <Button type="link" size="small" onClick={() => this.changeUpdate(true, r, 'update')}>店铺编辑</Button>
                         <Button type="link" size="small" onClick={() => this.changeDelete(true, r)}>店铺解除</Button>
-                    </>
+                    </div>
                 )
             }
         ]
@@ -186,10 +186,28 @@ class StoreControl extends Component {
     }
 
     // 店铺位置搜索框修改
-    changeMapSearch = e => this.setState({ mapSearch: e.target.value.trim() })
+    changeMapSearch = e => {
+        let { query } = this.state
+
+        // axios.post('https://apis.map.qq.com/ws/place/v1/suggestion',{
+        //     keyword: query,
+        //     region: query,
+        //     key: '',
+        //     location: ''
+        // }).then(res => {
+
+        // })
+
+        this.setState({ mapSearch: e.target.value.trim() })
+    }
 
     // 点击搜索店铺位置
     mapSearchReq = e => {
+        // axios.get(`https://apis.map.qq.com/ws/geocoder/v1/?key=4JOBZ-PS5KP-PACDZ-VWP4G-CLXQE-UOFSQ&address=${e}`).then(res => {
+        //     console.log(res);
+
+        // })
+
         this.setState({ mapShow: true })
     }
 
@@ -243,7 +261,7 @@ class StoreControl extends Component {
 
     // 获取地图参数
     getTxMap = (e, v) => {
-        console.log(v.Control);
+
     }
     render() {
         let { linkChildFlag, provinceArr, province, mapShow } = this.state;
@@ -348,9 +366,12 @@ class StoreControl extends Component {
                             initialOptions={{ zoomControl: true, mapTypeControl: true }}
                             apiKey="4JOBZ-PS5KP-PACDZ-VWP4G-CLXQE-UOFSQ"
                             style={{ height: 300 }}    // 高度和宽度默认占父元素的100%
-                            getMap={(e, v) => this.getTxMap(e, v) }
+                            getMap={(e, v) => this.getTxMap(e, v)}
                         /> : null
                     }
+                    <iframe id="geoPage" style={{ width: 0, height: 0, frameborder: 0, display: 'none' }} scrolling="no"
+                        src="https://apis.map.qq.com/tools/geolocation?key=4JOBZ-PS5KP-PACDZ-VWP4G-CLXQE-UOFSQ&referer=myapp">
+                    </iframe>
                 </Modal>
 
 

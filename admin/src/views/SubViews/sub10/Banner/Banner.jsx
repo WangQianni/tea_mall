@@ -90,7 +90,7 @@ class BannerAdmin extends Component {
         //         if (data.status !== "200") return this.setState({ isModel: true, id: rowData.id, linkUrl: rowData.linkUrl, img: '' });
         //         this.setState({ isModel: true, id: rowData.id, linkUrl: rowData.linkUrl, img: data.result });
         //     })
-
+        
         this.setState({
             isModel: true
         })
@@ -104,7 +104,7 @@ class BannerAdmin extends Component {
         //         if (data.status !== "200") return this.setState({ imgModel: true, img: '' })
         //         this.setState({ imgModel: true, img: data.result });
         //     })
-
+        console.log(1);
     }
 
     // 图片
